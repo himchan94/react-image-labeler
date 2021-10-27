@@ -19,12 +19,12 @@ export function createLabel(label) {
   return { type: CREATE, label };
 }
 
+export function removeLabel(id) {
+  return { type: REMOVE, id };
+}
+
 // export function updateImage(widget) {
 //   return { type: UPDATE, widget };
-// }
-
-// export function removeImage(widget) {
-//   return { type: REMOVE, widget };
 // }
 
 export default function reducer(state = initialState, action = {}) {
@@ -34,8 +34,15 @@ export default function reducer(state = initialState, action = {}) {
       return state;
 
     case "label/CREATE":
+      console.log("액션라벨", action.label);
       const new_label_list = [...state.label, action.label];
-      return { image: new_label_list };
+      return { label: new_label_list };
+
+    case "label/REMOVE":
+      const filtered_label_arr = state.label.filter(
+        (lb, idx) => lb.id !== action.id
+      );
+      return { label: filtered_label_arr };
 
     default:
       return state;

@@ -7,7 +7,7 @@ const UPDATE = "image/UPDATE";
 const REMOVE = "image/REMOVE";
 
 const initialState = {
-  image: [{ fileName: "test", id: 1 }],
+  image: [],
 };
 
 // Action Creators
@@ -23,9 +23,9 @@ export function createImage(image) {
 //   return { type: UPDATE, widget };
 // }
 
-// export function removeImage(widget) {
-//   return { type: REMOVE, widget };
-// }
+export function removeImage(id) {
+  return { type: REMOVE, id };
+}
 
 export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
@@ -34,9 +34,15 @@ export default function reducer(state = initialState, action = {}) {
       return state;
 
     case "image/CREATE":
-      const new_image_list = [...state.image, action.image];
+      const new_image_list = [...state.image, ...action.image];
+      console.log("액샨이미지", new_image_list);
       return { image: new_image_list };
 
+    case "image/REMOVE":
+      const filtered_image_arr = state.image.filter(
+        (lb, idx) => lb.id !== action.id
+      );
+      return { image: filtered_image_arr };
     default:
       return state;
   }
