@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+
+// Mui component
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -6,19 +8,36 @@ import { ListItemIcon } from "@material-ui/core";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import useStyles from "../css/useStyles.js";
 import { ListItemButton } from "@mui/material";
+
+// Component
+import Scroll from "./Scroll";
+
+// styleSheet
 import { styled } from "@mui/material/styles";
 
-import Scroll from "./Scroll";
+// ID generator
+import uuidv4 from "../script/id_generator.js";
+
+// Redux
+import { useDispatch } from "react-redux";
+import { createImage } from "../redux/modules/image.js";
 
 const Input = styled("input")({
   display: "none",
 });
 const ImageAdd = ({}) => {
+  const dispatch = useDispatch();
   const fileInput = useRef();
   const classes = useStyles();
 
   const addFile = (e) => {
-    console.log(e.target.files);
+    const files = [...e.target.files];
+    const formatted_files = files.map((file) => {
+      const id = uuidv4();
+      return { id: id, file };
+    });
+    console.log("포맷티드 파일", formatted_files);
+    dispatch(createImage(formatted_files));
   };
 
   return (
