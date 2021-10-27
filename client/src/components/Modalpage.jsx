@@ -1,12 +1,22 @@
 import { useState, useRef } from "react";
+
+// Mui components
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import SaveIcon from "@mui/icons-material/Save";
-
-import useStyles from "../css/useStyles.js";
 import CancelIcon from "@mui/icons-material/Cancel";
+
+// stylesheets
+import useStyles from "../css/useStyles.js";
+
+// ID generator
+import uuidv4 from "../script/id_generator.js";
+
+// Redux
+import { useDispatch, useSelector } from "react-redux";
+import { createLabel } from "../redux/modules/label";
 
 const style = {
   position: "absolute",
@@ -30,6 +40,7 @@ const style = {
 
 const Modalpage = ({ open, setOpen }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [color, setColor] = useState("#e66465");
   const [label, setLabel] = useState(null);
 
@@ -51,9 +62,12 @@ const Modalpage = ({ open, setOpen }) => {
                 <TextField
                   style={{ width: "70%" }}
                   label="Enter the label name"
+                  onChange={(e) => {
+                    setLabel(e.target.value);
+                  }}
                 />
                 <div>
-                  <label for="head">pick label color</label>
+                  <label htmlFor="head">pick label color</label>
                 </div>
                 <div>
                   <input
@@ -73,10 +87,21 @@ const Modalpage = ({ open, setOpen }) => {
                 variant="contained"
                 startIcon={<SaveIcon />}
                 color="success"
+                onClick={() => {
+                  const id = uuidv4();
+                  const object = {
+                    id: id,
+                    label: label,
+                    color: color,
+                  };
+                  dispatch(createLabel(object));
+                  setOpen(false);
+                }}
               >
                 Save
               </Button>
               <Button
+                className={classes.leftbtn}
                 variant="contained"
                 onClick={() => {
                   setOpen(false);

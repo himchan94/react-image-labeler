@@ -40,7 +40,7 @@ const LabelAdd = () => {
           </ListItemButton>
         </ListItem>
       </List>
-      <Scroll label={loaded_label} type={"label"} />
+      <Scroll  type={"label"} />
       <Modalpage open={open} setOpen={setOpen} />
     </>
   );

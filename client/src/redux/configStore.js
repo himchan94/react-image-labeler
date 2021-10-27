@@ -4,6 +4,8 @@ import image from "./modules/image";
 import label from "./modules/label";
 import { createBrowserHistory } from "history";
 
+import { composeWithDevTools } from "redux-devtools-extension"; // 리덕스 개발자 도구
+
 // 브라우저 히스토리를 만들어줍니다.
 export const history = createBrowserHistory();
 // root 리듀서를 만들어줍니다.
@@ -11,6 +13,6 @@ export const history = createBrowserHistory();
 const rootReducer = combineReducers({ image: image, label: label });
 
 // 스토어를 만듭니다.
-const store = createStore(rootReducer);
+const store = createStore(rootReducer, composeWithDevTools());
 
 export default store;

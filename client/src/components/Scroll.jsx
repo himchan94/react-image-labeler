@@ -1,45 +1,83 @@
 import * as React from "react";
+
+// Mui component
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import Box from "@mui/material/Box";
+import { Typography } from "@mui/material";
 
+// styleSheet
 import useStyles from "../css/useStyles.js";
 
-const Scroll = ({ files = [], type, label = [] }) => {
-  const classes = useStyles();
+//component
+import ContentBox from "./ContentBox.jsx";
 
-  if (files.length === 0) {
+//redux
+import { useDispatch, useSelector } from "react-redux";
+
+const Scroll = ({ type }) => {
+  const classes = useStyles();
+  const labelState = useSelector((state) => state.label);
+  const imageState = useSelector((state) => state.image);
+
+  if (type === "label") {
+    if (labelState.label.length === 0) {
+      return (
+        <>
+          <h4>Add your {type}</h4>
+        </>
+      );
+    }
     return (
-      <>
-        <h4>Add your {type}</h4>
-      </>
+      <Box
+        component="div"
+        sx={{ maxHeight: "250px", width: "auto", overflowY: "auto" }}
+      >
+        {labelState.label.map((lb, idx) => {
+          return (
+            <>
+              <ContentBox
+                type={"label"}
+                key={idx}
+                id={lb.id}
+                label={lb.label}
+                color={lb.color}
+              />
+            </>
+          );
+        })}
+      </Box>
     );
   }
 
   if (type === "files") {
+    if (imageState.image.length === 0) {
+      return (
+        <>
+          <h4>Add your {type}</h4>
+        </>
+      );
+    }
+
     return (
-      <List
-        sx={{
-          width: "100%",
-          bgcolor: "#D3D3D3",
-          position: "relative",
-          overflow: "auto",
-          maxHeight: 200,
-          marginTop: "15px",
-        }}
+      <Box
+        component="div"
+        sx={{ maxHeight: "250px", width: "auto", overflowY: "auto" }}
       >
-        {files.map((file, idx) => {
+        {imageState.image.map((img, idx) => {
           return (
-            <li className={classes.list} key={idx}>
-              <ul>
-                <ListItem key={idx}>
-                  <ListItemText primary={`${file.name}`} />
-                </ListItem>
-              </ul>
-            </li>
+            <>
+              <ContentBox
+                type={"image"}
+                key={idx}
+                id={img.id}
+                label={img.file.name}
+              />
+            </>
           );
         })}
-      </List>
+      </Box>
     );
   }
 };

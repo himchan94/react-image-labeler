@@ -10,6 +10,7 @@ const useStyles = makeStyles((theme) => ({
     flex: "1",
     backgroundColor: "#BEBEBE",
     padding: "15px",
+    maxWidth: "300px",
   },
   page: {
     flex: "4",
@@ -20,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    overflow: "auto",
   },
   imageinput: {
     display: "none",
@@ -40,13 +42,26 @@ const useStyles = makeStyles((theme) => ({
   },
   btncontainer: {
     marginTop: "10%",
-    width: "40%",
+    width: "70%",
     display: "flex",
     justifyContent: "space-evenly",
     alignItems: "center",
   },
   rightbtn: {
-    marginRight: "10px",
+    marginRight: "1rem",
+    padding: "20px",
+  },
+  leftbtn: {
+    padding: "20px",
+  },
+  cardcontent: {
+    marginTop: "10px",
+    padding: "5px",
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+    flexFlow: "no-wrap",
+    justifyContent: "space-evenly",
   },
 }));
 
