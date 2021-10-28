@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
   page: {
     flex: "4",
     display: "flex",
+    position: "relative",
   },
   imagepage: {
     flexGrow: "1",
