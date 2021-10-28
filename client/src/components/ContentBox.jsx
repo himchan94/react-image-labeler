@@ -1,5 +1,3 @@
-import * as React from "react";
-
 // Mui component
 
 import Card from "@mui/material/Card";
@@ -15,12 +13,15 @@ import useStyles from "../css/useStyles.js";
 import Colorbox from "./element/Colorbox.jsx";
 
 // Redux
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeLabel } from "../redux/modules/label.js";
 import { removeImage } from "../redux/modules/image.js";
+import { updateIndex } from "../redux/modules/current.js";
 
 const ContentBox = ({ type, label, color, id }) => {
   const dispatch = useDispatch();
+  const loaded_idx = useSelector((state) => state.current.index);
+
   const classes = useStyles();
 
   if (type === "label") {
@@ -55,7 +56,6 @@ const ContentBox = ({ type, label, color, id }) => {
       </Card>
     );
   } else {
-    console.log(id);
     return (
       <Card className={classes.cardcontent}>
         <div
@@ -73,6 +73,12 @@ const ContentBox = ({ type, label, color, id }) => {
             style={{ color: "red" }}
             onClick={() => {
               dispatch(removeImage(id));
+
+              if (loaded_idx - 1 >= 0) {
+                dispatch(updateIndex(loaded_idx - 1));
+              } else {
+                dispatch(updateIndex(0));
+              }
             }}
           >
             <CloseIcon />
