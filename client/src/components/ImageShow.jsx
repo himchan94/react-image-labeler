@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 // Redux
 import { useSelector } from "react-redux";
 
-// let layer;
-// let layerCtx;
-
+// canvas global variable
 let canvas, ctx;
+
+// layer global variable
+let layer, layerCtx;
 
 const ImageShow = () => {
   const [elements, setElements] = useState([]);
@@ -18,59 +19,70 @@ const ImageShow = () => {
   let currentIndex = useSelector((state) => state.current.index);
 
   useEffect(() => {
+    // canvas def
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
-    // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // layer = document.getElementById("layer");
-    // layerCtx = layer.getContext("2d");
+    // layer def
+    layer = document.getElementById("layer");
+    layerCtx = layer.getContext("2d");
+
+    //layer clear
+    layerCtx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // file = local image file, fr =  fileReader, img = image object
     let file, fr, img;
 
+    // loading image function
     function loadImage() {
       file = loaded_image.image[currentIndex].file;
       fr = new FileReader();
       fr.onload = createImage;
       fr.readAsDataURL(file);
 
+      // window image object creating function
       function createImage() {
         img = new Image();
         img.onload = imageLoaded;
         img.src = fr.result;
       }
 
+      // loading image to canvas function
       function imageLoaded() {
+        // set canvas(image) width & height
         canvas.width = img.width;
         canvas.height = img.height;
-        // layer.width = img.width;
-        // layer.height = img.height;
-        ctx.globalCompositeOperation = "source-over";
+
+        // set canvas(layer) width & height
+        layer.width = img.width;
+        layer.height = img.height;
+
+        // ctx.globalCompositeOperation = "source-over";
+
+        // drawing image to canvas
         ctx.drawImage(img, 0, 0);
+
+        // drawing label to canvas
         elements.forEach(({ layerElement }) => layerElement());
       }
     }
 
-    function reset() {
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      console.log("리셋");
-    }
-
+    // if image exists excute the function
     if (loaded_image.image.length !== 0) {
       loadImage();
-      // elements.forEach(({ layerElement }) => layerElement());
+    } else {
+      // when there are no images clear rect
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    return () => reset();
   }, [loaded_image, currentIndex, elements]);
 
   const createElement = (id, x1, y1, x2, y2, type) => {
-    // const roughElement = generator.line(x1, y1, x2, y2);
     const layerElement =
       type === "line"
         ? null // 추후 다른 기능 확장예정
         : function () {
-            ctx.strokeStyle = "gold";
-            ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+            layerCtx.strokeStyle = "gold";
+            layerCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
           };
     return { id, x1, y1, x2, y2, type, layerElement };
   };
@@ -274,7 +286,6 @@ const ImageShow = () => {
             maxWidth: "100%",
             maxHeight: "100%",
             overflow: "auto",
-            backgroundColor: "transparent",
             position: "absolute",
             zIndex: 44,
           }}
@@ -282,6 +293,7 @@ const ImageShow = () => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         ></canvas>
+
         <canvas
           id="canvas"
           style={{
@@ -291,9 +303,6 @@ const ImageShow = () => {
             // position: "absolute",
             // zIndex: 11,
           }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
         ></canvas>
       </>
     );
