@@ -6,6 +6,12 @@ const CREATE = "image/CREATE";
 const UPDATE = "image/UPDATE";
 const REMOVE = "image/REMOVE";
 
+// file format image:[{ id: id, file, Roi: 0, coordinate: [] }]
+// id : unique id
+// file : local image file
+// Roi number of coordinate(box)
+// coordinate : [{name:dog, id:id, coordinate: [0,0,0,0], color:color}, {}, {}]
+
 const initialState = {
   image: [],
 };
@@ -35,7 +41,6 @@ export default function reducer(state = initialState, action = {}) {
 
     case "image/CREATE":
       const new_image_list = [...state.image, ...action.image];
-      console.log("액샨이미지", new_image_list);
       return { image: new_image_list };
 
     case "image/REMOVE":

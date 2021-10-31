@@ -3,7 +3,7 @@
 // Actions
 const LOAD = "label/LOAD";
 const CREATE = "label/CREATE";
-const UPDATE = "label/UPDATE";
+// const UPDATE = "label/UPDATE";
 const REMOVE = "label/REMOVE";
 
 const initialState = {
@@ -34,7 +34,6 @@ export default function reducer(state = initialState, action = {}) {
       return state;
 
     case "label/CREATE":
-      console.log("액션라벨", action.label);
       const new_label_list = [...state.label, action.label];
       return { label: new_label_list };
 

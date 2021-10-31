@@ -6,20 +6,16 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import { ListItemIcon } from "@material-ui/core";
 import AddBoxIcon from "@mui/icons-material/AddBox";
-import TextField from "@mui/material/TextField";
 import { ListItemButton } from "@mui/material";
-import useStyles from "../css/useStyles.js";
-
-//Redux
-import { createLabel } from "../redux/modules/label";
-import { useDispatch, useSelector } from "react-redux";
 
 //JSX Component
 import Scroll from "./Scroll";
 import Modalpage from "./Modalpage.jsx";
 
+// styleSheet
+import useStyles from "../css/useStyles.js";
+
 const LabelAdd = () => {
-  const loaded_label = useSelector((state) => state.label);
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
@@ -40,7 +36,7 @@ const LabelAdd = () => {
           </ListItemButton>
         </ListItem>
       </List>
-      <Scroll  type={"label"} />
+      <Scroll type={"label"} />
       <Modalpage open={open} setOpen={setOpen} />
     </>
   );

@@ -2,7 +2,6 @@ import useStyles from "../../css/useStyles";
 
 const Colorbox = ({ color }) => {
   const classes = useStyles();
-  console.log(color, "color");
   return (
     <div
       style={{

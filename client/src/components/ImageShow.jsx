@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 // Redux
 import { useSelector } from "react-redux";
 
-let layer;
-let layerCtx;
+// let layer;
+// let layerCtx;
+
+let canvas, ctx;
 
 const ImageShow = () => {
   const [elements, setElements] = useState([]);
@@ -16,11 +18,12 @@ const ImageShow = () => {
   let currentIndex = useSelector((state) => state.current.index);
 
   useEffect(() => {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+    canvas = document.getElementById("canvas");
+    ctx = canvas.getContext("2d");
+    // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    layer = document.getElementById("layer");
-    layerCtx = layer.getContext("2d");
+    // layer = document.getElementById("layer");
+    // layerCtx = layer.getContext("2d");
 
     // file = local image file, fr =  fileReader, img = image object
     let file, fr, img;
@@ -40,20 +43,22 @@ const ImageShow = () => {
       function imageLoaded() {
         canvas.width = img.width;
         canvas.height = img.height;
-        layer.width = img.width;
-        layer.height = img.height;
+        // layer.width = img.width;
+        // layer.height = img.height;
+        ctx.globalCompositeOperation = "source-over";
         ctx.drawImage(img, 0, 0);
+        elements.forEach(({ layerElement }) => layerElement());
       }
     }
 
     function reset() {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      layerCtx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      console.log("리셋");
     }
 
     if (loaded_image.image.length !== 0) {
       loadImage();
-      elements.forEach(({ layerElement }) => layerElement());
+      // elements.forEach(({ layerElement }) => layerElement());
     }
     return () => reset();
   }, [loaded_image, currentIndex, elements]);
@@ -64,8 +69,8 @@ const ImageShow = () => {
       type === "line"
         ? null // 추후 다른 기능 확장예정
         : function () {
-            layerCtx.strokeStyle = "gold";
-            layerCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+            ctx.strokeStyle = "gold";
+            ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
           };
     return { id, x1, y1, x2, y2, type, layerElement };
   };
@@ -148,7 +153,7 @@ const ImageShow = () => {
   };
 
   const handleMouseDown = (e) => {
-    const { clientX, clientY } = realXY(layer, e);
+    const { clientX, clientY } = realXY(canvas, e);
     if (tool === "selection") {
       const element = getElementAtPosition(clientX, clientY, elements);
 
@@ -192,7 +197,7 @@ const ImageShow = () => {
   };
 
   const handleMouseMove = (e) => {
-    const { clientX, clientY } = realXY(layer, e);
+    const { clientX, clientY } = realXY(canvas, e);
 
     if (tool === "selection") {
       const element = getElementAtPosition(clientX, clientY, elements);
@@ -269,10 +274,9 @@ const ImageShow = () => {
             maxWidth: "100%",
             maxHeight: "100%",
             overflow: "auto",
-            // backgroundColor: "green",
+            backgroundColor: "transparent",
             position: "absolute",
             zIndex: 44,
-            backgroundColor: "transparent",
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -284,10 +288,12 @@ const ImageShow = () => {
             maxWidth: "100%",
             maxHeight: "100%",
             overflow: "auto",
-            position: "absolute",
-            zIndex: 11,
-            backgroundColor: "transparent",
+            // position: "absolute",
+            // zIndex: 11,
           }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
         ></canvas>
       </>
     );

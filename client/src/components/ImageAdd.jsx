@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 // Mui component
 import List from "@mui/material/List";
@@ -25,7 +25,7 @@ import { createImage } from "../redux/modules/image.js";
 const Input = styled("input")({
   display: "none",
 });
-const ImageAdd = ({}) => {
+const ImageAdd = () => {
   const dispatch = useDispatch();
   const fileInput = useRef();
   const classes = useStyles();
@@ -34,9 +34,8 @@ const ImageAdd = ({}) => {
     const files = [...e.target.files];
     const formatted_files = files.map((file) => {
       const id = uuidv4();
-      return { id: id, file };
+      return { id: id, file, Roi: 0, coordinate: [] };
     });
-    console.log("포맷티드 파일", formatted_files);
     dispatch(createImage(formatted_files));
   };
 

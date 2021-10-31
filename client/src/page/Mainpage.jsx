@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 
 import ImageBox from "../components/ImageBox";
 import SideBar from "../components/SideBar";

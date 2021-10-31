@@ -15,7 +15,7 @@ import useStyles from "../css/useStyles.js";
 import uuidv4 from "../script/id_generator.js";
 
 // Redux
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { createLabel } from "../redux/modules/label";
 
 const style = {

@@ -1,23 +1,15 @@
 import * as React from "react";
 
 // Mui component
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
-
-// styleSheet
-import useStyles from "../css/useStyles.js";
 
 //component
 import ContentBox from "./ContentBox.jsx";
 
 //redux
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 const Scroll = ({ type }) => {
-  const classes = useStyles();
   const labelState = useSelector((state) => state.label);
   const imageState = useSelector((state) => state.image);
 
@@ -36,15 +28,13 @@ const Scroll = ({ type }) => {
       >
         {labelState.label.map((lb, idx) => {
           return (
-            <>
-              <ContentBox
-                type={"label"}
-                key={idx}
-                id={lb.id}
-                label={lb.label}
-                color={lb.color}
-              />
-            </>
+            <ContentBox
+              key={idx}
+              type={"label"}
+              id={lb.id}
+              label={lb.label}
+              color={lb.color}
+            />
           );
         })}
       </Box>
@@ -67,14 +57,12 @@ const Scroll = ({ type }) => {
       >
         {imageState.image.map((img, idx) => {
           return (
-            <>
-              <ContentBox
-                type={"image"}
-                key={idx}
-                id={img.id}
-                label={img.file.name}
-              />
-            </>
+            <ContentBox
+              key={idx}
+              type={"image"}
+              id={img.id}
+              label={img.file.name}
+            />
           );
         })}
       </Box>
