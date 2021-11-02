@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 
 // Mui component
 import Box from "@mui/material/Box";
@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import ContentBox from "./ContentBox.jsx";
 
 //redux
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const Scroll = ({ type }) => {
   const labelState = useSelector((state) => state.label);

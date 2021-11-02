@@ -72,6 +72,7 @@ body {
   border-radius: var(--radius);
   cursor: pointer;
   transition: var(--transition);
+  z-index: 999;
 }
 
 .prev:hover,

@@ -23,6 +23,8 @@ const ImageBox = () => {
   const classes = useStyles();
   const [hover, setHover] = useState(false);
 
+  console.log("이미지박스");
+
   useEffect(() => {
     const element = document.getElementById("container");
 
@@ -58,14 +60,14 @@ const ImageBox = () => {
                 if (newIndex < 0) {
                   if (loaded_image.image.length !== 0) {
                     newIndex = loaded_image.image.length - 1;
-                    dispatch(updateIndex(newIndex));
+                    dispatch(updateIndex({ index: newIndex }));
                   } else {
                     newIndex = 0;
-                    dispatch(updateIndex(newIndex));
+                    dispatch(updateIndex({ index: newIndex }));
                   }
                 }
 
-                dispatch(updateIndex(newIndex));
+                dispatch(updateIndex({ index: newIndex }));
               }}
             >
               <ArrowBackIosIcon sx={{ fontSize: 40 }} />
@@ -77,10 +79,10 @@ const ImageBox = () => {
 
                 if (newIndex > loaded_image.image.length - 1) {
                   newIndex = 0;
-                  dispatch(updateIndex(newIndex));
+                  dispatch(updateIndex({ index: newIndex }));
                 }
 
-                dispatch(updateIndex(newIndex));
+                dispatch(updateIndex({ index: newIndex }));
               }}
             >
               <ArrowForwardIosIcon sx={{ fontSize: 40 }} />

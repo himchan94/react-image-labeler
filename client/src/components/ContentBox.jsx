@@ -17,16 +17,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { removeLabel } from "../redux/modules/label.js";
 import { removeImage } from "../redux/modules/image.js";
 import { updateIndex } from "../redux/modules/current.js";
+import { updateLabel } from "../redux/modules/current.js";
 
 const ContentBox = ({ type, label, color, id }) => {
   const dispatch = useDispatch();
   const loaded_idx = useSelector((state) => state.current.index);
+  const current_label = useSelector((state) => state.current.current_label);
+
+  console.log("current_label", current_label);
 
   const classes = useStyles();
 
   if (type === "label") {
     return (
-      <Card className={classes.cardcontent}>
+      <Card
+        className={classes.cardcontent}
+        style={
+          id === current_label.id
+            ? { backgroundColor: "red" }
+            : { backgroundColor: "white" }
+        }
+        onClick={() => {
+          dispatch(updateLabel({ name: label, color: color, id: id }));
+        }}
+      >
         <div>
           <Colorbox color={color} />
         </div>
@@ -46,8 +60,12 @@ const ContentBox = ({ type, label, color, id }) => {
           }}
         >
           <Button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation(); // to prevent e bubbling
               dispatch(removeLabel(id));
+              dispatch(
+                updateLabel({ name: "label", color: "color", id: "id" })
+              );
             }}
           >
             <DeleteIcon />
@@ -64,7 +82,10 @@ const ContentBox = ({ type, label, color, id }) => {
             overflowX: "hidden",
           }}
         >
-          <Typography style={{ width: "150px" }} variant="h6">
+          <Typography
+            style={{ width: "150px", textAlign: "center" }}
+            variant="h6"
+          >
             {label}
           </Typography>
         </div>

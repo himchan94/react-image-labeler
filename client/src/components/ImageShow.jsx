@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
 // Redux
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { updateImageid } from "../redux/modules/current.js";
 
 // canvas global variable
 let canvas, ctx;
@@ -15,26 +16,32 @@ const ImageShow = () => {
   const [tool, setTool] = useState("rectangle");
   const [selectedElement, setSelectedElement] = useState(null);
 
+  const dispatch = useDispatch();
+
   const loaded_image = useSelector((state) => state.image);
-  let currentIndex = useSelector((state) => state.current.index);
+  const currentIndex = useSelector((state) => state.current.index);
+  const currentLabel = useSelector((state) => state.current.current_label);
 
   useEffect(() => {
     // canvas def
     canvas = document.getElementById("canvas");
-    ctx = canvas.getContext("2d");
-
-    // layer def
     layer = document.getElementById("layer");
-    layerCtx = layer.getContext("2d");
 
-    //layer clear
-    layerCtx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if (canvas && layer) {
+      ctx = canvas.getContext("2d");
+      layerCtx = layer.getContext("2d");
+
+      layerCtx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
 
     // file = local image file, fr =  fileReader, img = image object
     let file, fr, img;
 
     // loading image function
     function loadImage() {
+      dispatch(
+        updateImageid({ current_id: loaded_image.image[currentIndex].id })
+      );
       file = loaded_image.image[currentIndex].file;
       fr = new FileReader();
       fr.onload = createImage;
@@ -43,8 +50,8 @@ const ImageShow = () => {
       // window image object creating function
       function createImage() {
         img = new Image();
-        img.onload = imageLoaded;
         img.src = fr.result;
+        img.onload = imageLoaded;
       }
 
       // loading image to canvas function
@@ -71,15 +78,18 @@ const ImageShow = () => {
     if (loaded_image.image.length !== 0) {
       loadImage();
     } else {
-      // when there are no images clear rect
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      // when there are no images, clear rect
+
+      if (canvas && layer) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      }
     }
   }, [loaded_image, currentIndex, elements]);
 
   const createElement = (id, x1, y1, x2, y2, type) => {
     const layerElement =
-      type === "line"
-        ? null // 추후 다른 기능 확장예정
+      type === "polygon"
+        ? null // polygon 추후 추가 예정 현재는 Rect 기능만
         : function () {
             layerCtx.strokeStyle = "gold";
             layerCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
@@ -138,8 +148,6 @@ const ImageShow = () => {
     switch (position) {
       case "tl":
       case "br":
-      case "start":
-      case "end":
         return "nwse-resize";
       default:
         return "move";
@@ -150,15 +158,11 @@ const ImageShow = () => {
     const { x1, y1, x2, y2 } = coordinates;
     switch (position) {
       case "tl":
-      case "start":
-        return { x1: clientX, y1: clientY, x2, y2 };
       case "tr":
         return { x1, y1: clientY, x2: clientX, y2 };
       case "bl":
         return { x1: clientX, y1, x2, y2: clientY };
       case "br":
-      case "end":
-        return { x1, y1, x2: clientX, y2: clientY };
       default:
         return null; //should not really get here...
     }
@@ -246,7 +250,6 @@ const ImageShow = () => {
       const index = selectedElement.id;
       const { id, type } = elements[index];
       if (action === "drawing" || "resizing") {
-        console.log(elements[index]);
         const { x1, y1, x2, y2 } = adjustElementCoordinate(elements[index]);
         console.log(x1, y1, x2, y2);
         updateElement(id, x1, y1, x2, y2, type);
@@ -257,13 +260,12 @@ const ImageShow = () => {
     }
   };
 
-  if (loaded_image.length === 0) {
+  if (loaded_image.image.length === 0) {
     return <h1>Upload your image</h1>;
   } else {
     return (
       <>
         <div style={{ position: "fixed", top: 0, left: 500 }}>
-          {" "}
           <input
             type="radio"
             id="selection"
@@ -279,7 +281,6 @@ const ImageShow = () => {
           />
           <label htmlFor="rectangle">Rectangle</label>
         </div>
-
         <canvas
           id="layer"
           style={{
@@ -293,15 +294,12 @@ const ImageShow = () => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         ></canvas>
-
         <canvas
           id="canvas"
           style={{
             maxWidth: "100%",
             maxHeight: "100%",
             overflow: "auto",
-            // position: "absolute",
-            // zIndex: 11,
           }}
         ></canvas>
       </>
