@@ -19,8 +19,10 @@ const ImageShow = () => {
   const dispatch = useDispatch();
 
   const loaded_image = useSelector((state) => state.image);
+  const loaded_label = useSelector((state) => state.label.label);
   const currentIndex = useSelector((state) => state.current.index);
   const currentLabel = useSelector((state) => state.current.current_label);
+  const currentImageId = useSelector((state) => state.current.current_id);
 
   useEffect(() => {
     // canvas def
@@ -40,7 +42,9 @@ const ImageShow = () => {
     // loading image function
     function loadImage() {
       dispatch(
-        updateImageid({ current_id: loaded_image.image[currentIndex].id })
+        updateImageid({
+          current_id: loaded_image.image[currentIndex].id,
+        })
       );
       file = loaded_image.image[currentIndex].file;
       fr = new FileReader();
@@ -70,7 +74,13 @@ const ImageShow = () => {
         ctx.drawImage(img, 0, 0);
 
         // drawing label to canvas
-        elements.forEach(({ layerElement }) => layerElement());
+        elements.forEach(({ x1, x2, y1, y2, labelColor, imageId }) => {
+          if (currentImageId === imageId) {
+            layerCtx.strokeStyle = labelColor;
+            layerCtx.lineWidth = 3;
+            layerCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+          }
+        });
       }
     }
 
@@ -84,7 +94,7 @@ const ImageShow = () => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       }
     }
-  }, [loaded_image, currentIndex, elements]);
+  }, [loaded_image, currentIndex, elements, currentImageId]);
 
   const createElement = (
     id,
@@ -95,16 +105,9 @@ const ImageShow = () => {
     type,
     labelName,
     labelId,
-    labelColor
+    labelColor,
+    imageId
   ) => {
-    const layerElement =
-      type === "polygon"
-        ? null // polygon 추후 추가 예정 현재는 Rect 기능만
-        : function () {
-            layerCtx.strokeStyle = labelColor;
-            layerCtx.lineWidth = 3;
-            layerCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-          };
     return {
       id,
       x1,
@@ -112,10 +115,10 @@ const ImageShow = () => {
       x2,
       y2,
       type,
-      layerElement,
       labelName,
       labelId,
       labelColor,
+      imageId,
     };
   };
 
@@ -146,32 +149,16 @@ const ImageShow = () => {
       .find((element) => element.position !== null);
   };
 
-  const updateElement = (
-    id,
-    x1,
-    y1,
-    x2,
-    y2,
-    type,
-    labelName,
-    labelId,
-    labelColor
-  ) => {
-    const updatedElement = createElement(
-      id,
-      x1,
-      y1,
-      x2,
-      y2,
-      type,
-      labelName,
-      labelId,
-      labelColor
-    );
-
+  const updateElement = (id, x1, y1, x2, y2) => {
     const elementsCopy = [...elements];
-    elementsCopy[id] = updatedElement;
-    setElements(elementsCopy);
+    const updated_elementsCopy = elementsCopy.map((element) => {
+      if (element.id === id) {
+        return { ...element, x1, y1, x2, y2 };
+      } else return element;
+    });
+
+    // elementsCopy[id] = updatedElement;
+    setElements(updated_elementsCopy);
   };
 
   // {최소x1, 최소y1, 최소x2, 최소y2} 조정
@@ -217,10 +204,18 @@ const ImageShow = () => {
 
   const handleMouseDown = (e) => {
     const { clientX, clientY } = realXY(canvas, e);
+
+    if (loaded_label.length === 0) {
+      alert("Create yout Label");
+    } else {
+      if (!currentLabel.name) {
+        alert("Select your Label");
+      }
+    }
+
     if (currentLabel.name) {
       if (tool === "selection") {
         const element = getElementAtPosition(clientX, clientY, elements);
-        console.log(element);
 
         if (element) {
           const offsetX = clientX - element.x1;
@@ -235,6 +230,18 @@ const ImageShow = () => {
         }
         // if we are on an element
         // setaction(moving)
+      } else if (tool === "remove") {
+        const removing_element = getElementAtPosition(
+          clientX,
+          clientY,
+          elements
+        );
+        if (removing_element) {
+          const filtered_elements = elements.filter(
+            (element) => element.id !== removing_element.id
+          );
+          setElements([...filtered_elements]);
+        }
       } else {
         const id = elements.length;
         const element = createElement(
@@ -246,7 +253,8 @@ const ImageShow = () => {
           tool,
           currentLabel.name,
           currentLabel.id,
-          currentLabel.color
+          currentLabel.color,
+          currentImageId
         );
         setElements((prevState) => [...prevState, element]);
         setAction("drawing");
@@ -255,6 +263,7 @@ const ImageShow = () => {
     }
   };
 
+  // function for real calculate real x,y position in canvas(layer)
   const realXY = (canvas, event) => {
     const rect = canvas.getBoundingClientRect();
     return {
@@ -279,34 +288,14 @@ const ImageShow = () => {
       if (action === "drawing") {
         const index = elements.length - 1;
         const { x1, y1 } = elements[index];
-        updateElement(
-          index,
-          x1,
-          y1,
-          clientX,
-          clientY,
-          tool,
-          currentLabel.name,
-          currentLabel.id,
-          currentLabel.color
-        );
+        updateElement(index, x1, y1, clientX, clientY, tool);
       } else if (action === "moving") {
         const { id, x1, x2, y1, y2, type, offsetX, offsetY } = selectedElement;
         const width = x2 - x1;
         const height = y2 - y1;
         const newX1 = clientX - offsetX;
         const newY1 = clientY - offsetY;
-        updateElement(
-          id,
-          newX1,
-          newY1,
-          newX1 + width,
-          newY1 + height,
-          type,
-          currentLabel.name,
-          currentLabel.id,
-          currentLabel.color
-        );
+        updateElement(id, newX1, newY1, newX1 + width, newY1 + height, type);
       } else if (action === "resizing") {
         const { id, type, position, ...coordinates } = selectedElement;
         const { x1, y1, x2, y2 } = resizedCoordinates(
@@ -315,17 +304,7 @@ const ImageShow = () => {
           position,
           coordinates
         );
-        updateElement(
-          id,
-          x1,
-          y1,
-          x2,
-          y2,
-          type,
-          currentLabel.name,
-          currentLabel.id,
-          currentLabel.color
-        );
+        updateElement(id, x1, y1, x2, y2, type);
       }
     }
   };
@@ -337,17 +316,7 @@ const ImageShow = () => {
         const { id, type } = elements[index];
         if (action === "drawing" || "resizing") {
           const { x1, y1, x2, y2 } = adjustElementCoordinate(elements[index]);
-          updateElement(
-            id,
-            x1,
-            y1,
-            x2,
-            y2,
-            type,
-            currentLabel.name,
-            currentLabel.id,
-            currentLabel.color
-          );
+          updateElement(id, x1, y1, x2, y2, type);
         }
 
         setAction("none");
@@ -361,21 +330,45 @@ const ImageShow = () => {
   } else {
     return (
       <>
-        <div style={{ position: "fixed", top: 0, left: 500 }}>
-          <input
-            type="radio"
-            id="selection"
-            checked={tool === "selection"}
-            onChange={() => setTool("selection")}
-          />
-          <label htmlFor="selection">Selection</label>
-          <input
-            type="radio"
-            id="rectangle"
-            checked={tool === "rectangle"}
-            onChange={() => setTool("rectangle")}
-          />
-          <label htmlFor="rectangle">Rectangle</label>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 300,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div>
+            {" "}
+            <input
+              type="radio"
+              id="selection"
+              checked={tool === "selection"}
+              onChange={() => setTool("selection")}
+            />
+            <label htmlFor="selection">Selection</label>
+          </div>
+          <div>
+            {" "}
+            <input
+              type="radio"
+              id="rectangle"
+              checked={tool === "rectangle"}
+              onChange={() => setTool("rectangle")}
+            />
+            <label htmlFor="rectangle">Rectangle</label>
+          </div>
+          <div>
+            {" "}
+            <input
+              type="radio"
+              id="rectangle"
+              checked={tool === "remove"}
+              onChange={() => setTool("remove")}
+            />
+            <label htmlFor="rectangle">Remove</label>
+          </div>
         </div>
         <canvas
           id="layer"

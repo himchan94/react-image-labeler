@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 // Mui component
 import { Paper } from "@material-ui/core";
@@ -21,74 +21,49 @@ const ImageBox = () => {
   const loaded_image = useSelector((state) => state.image);
 
   const classes = useStyles();
-  const [hover, setHover] = useState(false);
-
-  console.log("이미지박스");
-
-  useEffect(() => {
-    const element = document.getElementById("container");
-
-    const hoverIn = () => {
-      setHover(true);
-    };
-
-    const hoverOut = () => {
-      setHover(false);
-    };
-
-    element.addEventListener("mouseenter", hoverIn);
-    element.addEventListener("mouseleave", hoverOut);
-
-    return () => {
-      element.removeEventListener("mouseenter", hoverIn);
-      element.removeEventListener("mouseleave", hoverOut);
-    };
-  });
 
   return (
     <div id="container" className={classes.page}>
       <Paper className={classes.imagepage} elevation={10}>
         <ImageShow />
 
-        {hover ? (
-          <>
-            <button
-              className="prev"
-              onClick={(e) => {
-                let newIndex = idx.index - 1;
+        <div>
+          <button
+            className="prev"
+            onClick={(e) => {
+              let newIndex = idx.index - 1;
 
-                if (newIndex < 0) {
-                  if (loaded_image.image.length !== 0) {
-                    newIndex = loaded_image.image.length - 1;
-                    dispatch(updateIndex({ index: newIndex }));
-                  } else {
-                    newIndex = 0;
-                    dispatch(updateIndex({ index: newIndex }));
-                  }
-                }
-
-                dispatch(updateIndex({ index: newIndex }));
-              }}
-            >
-              <ArrowBackIosIcon sx={{ fontSize: 40 }} />
-            </button>
-            <button
-              className="next"
-              onClick={(e) => {
-                let newIndex = idx.index + 1;
-
-                if (newIndex > loaded_image.image.length - 1) {
+              if (newIndex < 0) {
+                if (loaded_image.image.length !== 0) {
+                  newIndex = loaded_image.image.length - 1;
+                  dispatch(updateIndex({ index: newIndex }));
+                } else {
                   newIndex = 0;
                   dispatch(updateIndex({ index: newIndex }));
                 }
+              }
 
+              dispatch(updateIndex({ index: newIndex }));
+            }}
+          >
+            <ArrowBackIosIcon sx={{ fontSize: 40 }} />
+          </button>
+          <button
+            className="next"
+            onClick={(e) => {
+              let newIndex = idx.index + 1;
+
+              if (newIndex > loaded_image.image.length - 1) {
+                newIndex = 0;
                 dispatch(updateIndex({ index: newIndex }));
-              }}
-            >
-              <ArrowForwardIosIcon sx={{ fontSize: 40 }} />
-            </button>
-          </>
-        ) : null}
+              }
+
+              dispatch(updateIndex({ index: newIndex }));
+            }}
+          >
+            <ArrowForwardIosIcon sx={{ fontSize: 40 }} />
+          </button>
+        </div>
       </Paper>
     </div>
   );

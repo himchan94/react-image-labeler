@@ -24,8 +24,6 @@ const ContentBox = ({ type, label, color, id }) => {
   const loaded_idx = useSelector((state) => state.current.index);
   const current_label = useSelector((state) => state.current.current_label);
 
-  console.log("current_label", current_label);
-
   const classes = useStyles();
 
   if (type === "label") {
@@ -94,7 +92,7 @@ const ContentBox = ({ type, label, color, id }) => {
               dispatch(removeImage(id));
 
               if (loaded_idx - 1 >= 0) {
-                dispatch(updateIndex(loaded_idx - 1));
+                dispatch(updateIndex({ index: loaded_idx - 1 }));
               } else {
                 dispatch(updateIndex(0));
               }

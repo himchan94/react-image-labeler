@@ -37,6 +37,7 @@ const ImageAdd = () => {
       return { id: id, file, Roi: 0, coordinate: [] };
     });
     dispatch(createImage(formatted_files));
+    e.target.value = "";
   };
 
   return (
