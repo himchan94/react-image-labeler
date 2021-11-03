@@ -86,15 +86,37 @@ const ImageShow = () => {
     }
   }, [loaded_image, currentIndex, elements]);
 
-  const createElement = (id, x1, y1, x2, y2, type) => {
+  const createElement = (
+    id,
+    x1,
+    y1,
+    x2,
+    y2,
+    type,
+    labelName,
+    labelId,
+    labelColor
+  ) => {
     const layerElement =
       type === "polygon"
         ? null // polygon 추후 추가 예정 현재는 Rect 기능만
         : function () {
-            layerCtx.strokeStyle = "gold";
+            layerCtx.strokeStyle = labelColor;
+            layerCtx.lineWidth = 3;
             layerCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
           };
-    return { id, x1, y1, x2, y2, type, layerElement };
+    return {
+      id,
+      x1,
+      y1,
+      x2,
+      y2,
+      type,
+      layerElement,
+      labelName,
+      labelId,
+      labelColor,
+    };
   };
 
   // offset for select
@@ -124,8 +146,28 @@ const ImageShow = () => {
       .find((element) => element.position !== null);
   };
 
-  const updateElement = (id, x1, y1, x2, y2, type) => {
-    const updatedElement = createElement(id, x1, y1, x2, y2, type);
+  const updateElement = (
+    id,
+    x1,
+    y1,
+    x2,
+    y2,
+    type,
+    labelName,
+    labelId,
+    labelColor
+  ) => {
+    const updatedElement = createElement(
+      id,
+      x1,
+      y1,
+      x2,
+      y2,
+      type,
+      labelName,
+      labelId,
+      labelColor
+    );
 
     const elementsCopy = [...elements];
     elementsCopy[id] = updatedElement;
@@ -149,6 +191,9 @@ const ImageShow = () => {
       case "tl":
       case "br":
         return "nwse-resize";
+      case "tr":
+      case "bl":
+        return "nesw-resize";
       default:
         return "move";
     }
@@ -158,11 +203,13 @@ const ImageShow = () => {
     const { x1, y1, x2, y2 } = coordinates;
     switch (position) {
       case "tl":
+        return { x1: clientX, y1: clientY, x2, y2 };
       case "tr":
         return { x1, y1: clientY, x2: clientX, y2 };
       case "bl":
         return { x1: clientX, y1, x2, y2: clientY };
       case "br":
+        return { x1, y1, x2: clientX, y2: clientY };
       default:
         return null; //should not really get here...
     }
@@ -170,35 +217,41 @@ const ImageShow = () => {
 
   const handleMouseDown = (e) => {
     const { clientX, clientY } = realXY(canvas, e);
-    if (tool === "selection") {
-      const element = getElementAtPosition(clientX, clientY, elements);
+    if (currentLabel.name) {
+      if (tool === "selection") {
+        const element = getElementAtPosition(clientX, clientY, elements);
+        console.log(element);
 
-      if (element) {
-        const offsetX = clientX - element.x1;
-        const offsetY = clientY - element.y1;
-        setSelectedElement({ ...element, offsetX, offsetY });
+        if (element) {
+          const offsetX = clientX - element.x1;
+          const offsetY = clientY - element.y1;
+          setSelectedElement({ ...element, offsetX, offsetY });
 
-        if (element.position === "inside") {
-          setAction("moving");
-        } else {
-          setAction("resizing");
+          if (element.position === "inside") {
+            setAction("moving");
+          } else {
+            setAction("resizing");
+          }
         }
+        // if we are on an element
+        // setaction(moving)
+      } else {
+        const id = elements.length;
+        const element = createElement(
+          id,
+          clientX,
+          clientY,
+          clientX,
+          clientY,
+          tool,
+          currentLabel.name,
+          currentLabel.id,
+          currentLabel.color
+        );
+        setElements((prevState) => [...prevState, element]);
+        setAction("drawing");
+        setSelectedElement(element);
       }
-      // if we are on an element
-      // setaction(moving)
-    } else {
-      const id = elements.length;
-      const element = createElement(
-        id,
-        clientX,
-        clientY,
-        clientX,
-        clientY,
-        tool
-      );
-      setElements((prevState) => [...prevState, element]);
-      setAction("drawing");
-      setSelectedElement(element);
     }
   };
 
@@ -215,48 +268,91 @@ const ImageShow = () => {
   const handleMouseMove = (e) => {
     const { clientX, clientY } = realXY(canvas, e);
 
-    if (tool === "selection") {
-      const element = getElementAtPosition(clientX, clientY, elements);
-      e.target.style.cursor = element
-        ? cursorForPosition(element.position)
-        : "default";
-    }
+    if (currentLabel) {
+      if (tool === "selection") {
+        const element = getElementAtPosition(clientX, clientY, elements);
+        e.target.style.cursor = element
+          ? cursorForPosition(element.position)
+          : "default";
+      }
 
-    if (action === "drawing") {
-      const index = elements.length - 1;
-      const { x1, y1 } = elements[index];
-      updateElement(index, x1, y1, clientX, clientY, tool);
-    } else if (action === "moving") {
-      const { id, x1, x2, y1, y2, type, offsetX, offsetY } = selectedElement;
-      const width = x2 - x1;
-      const height = y2 - y1;
-      const newX1 = clientX - offsetX;
-      const newY1 = clientY - offsetY;
-      updateElement(id, newX1, newY1, newX1 + width, newY1 + height, type);
-    } else if (action === "resizing") {
-      const { id, type, position, ...coordinates } = selectedElement;
-      const { x1, y1, x2, y2 } = resizedCoordinates(
-        clientX,
-        clientY,
-        position,
-        coordinates
-      );
-      updateElement(id, x1, y1, x2, y2, type);
+      if (action === "drawing") {
+        const index = elements.length - 1;
+        const { x1, y1 } = elements[index];
+        updateElement(
+          index,
+          x1,
+          y1,
+          clientX,
+          clientY,
+          tool,
+          currentLabel.name,
+          currentLabel.id,
+          currentLabel.color
+        );
+      } else if (action === "moving") {
+        const { id, x1, x2, y1, y2, type, offsetX, offsetY } = selectedElement;
+        const width = x2 - x1;
+        const height = y2 - y1;
+        const newX1 = clientX - offsetX;
+        const newY1 = clientY - offsetY;
+        updateElement(
+          id,
+          newX1,
+          newY1,
+          newX1 + width,
+          newY1 + height,
+          type,
+          currentLabel.name,
+          currentLabel.id,
+          currentLabel.color
+        );
+      } else if (action === "resizing") {
+        const { id, type, position, ...coordinates } = selectedElement;
+        const { x1, y1, x2, y2 } = resizedCoordinates(
+          clientX,
+          clientY,
+          position,
+          coordinates
+        );
+        updateElement(
+          id,
+          x1,
+          y1,
+          x2,
+          y2,
+          type,
+          currentLabel.name,
+          currentLabel.id,
+          currentLabel.color
+        );
+      }
     }
   };
 
   const handleMouseUp = (e) => {
-    if (selectedElement) {
-      const index = selectedElement.id;
-      const { id, type } = elements[index];
-      if (action === "drawing" || "resizing") {
-        const { x1, y1, x2, y2 } = adjustElementCoordinate(elements[index]);
-        console.log(x1, y1, x2, y2);
-        updateElement(id, x1, y1, x2, y2, type);
-      }
+    if (currentLabel) {
+      if (selectedElement) {
+        const index = selectedElement.id;
+        const { id, type } = elements[index];
+        if (action === "drawing" || "resizing") {
+          const { x1, y1, x2, y2 } = adjustElementCoordinate(elements[index]);
+          updateElement(
+            id,
+            x1,
+            y1,
+            x2,
+            y2,
+            type,
+            currentLabel.name,
+            currentLabel.id,
+            currentLabel.color
+          );
+        }
 
-      setAction("none");
-      setSelectedElement(null);
+        setAction("none");
+        setSelectedElement(null);
+      }
     }
   };
 

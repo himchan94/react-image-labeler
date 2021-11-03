@@ -63,9 +63,7 @@ const ContentBox = ({ type, label, color, id }) => {
             onClick={(e) => {
               e.stopPropagation(); // to prevent e bubbling
               dispatch(removeLabel(id));
-              dispatch(
-                updateLabel({ name: "label", color: "color", id: "id" })
-              );
+              dispatch(updateLabel({ name: null, color: null, id: null }));
             }}
           >
             <DeleteIcon />
