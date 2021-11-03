@@ -8,9 +8,6 @@ import SaveIcon from "@mui/icons-material/Save";
 import { useSelector, useDispatch } from "react-redux";
 import { updateImageid } from "../redux/modules/current.js";
 
-// ID generator
-import uuidv4 from "../script/id_generator.js";
-
 // canvas global variable
 let canvas, ctx;
 
@@ -102,6 +99,47 @@ const ImageShow = () => {
       }
     }
   }, [loaded_image, currentIndex, elements, currentImageId]);
+
+  // download function
+  const download = () => {
+    if (elements.length !== 0) {
+      elements.forEach((element) => {
+        // create a tag
+        let hiddenElement = document.createElement("a");
+
+        // fileName variable
+        let fileName;
+
+        // finding fileName loop
+        loaded_image.image.forEach((img) => {
+          if (img.id === element.imageId) {
+            fileName = img.file.name;
+          }
+        });
+
+        // donwload element link feature & setting text file
+        hiddenElement.href =
+          "data:attachment/text," +
+          encodeURI(
+            element.labelName +
+              " " +
+              element.x1 +
+              " " +
+              element.y1 +
+              " " +
+              element.x2 +
+              " " +
+              element.y2
+          );
+        hiddenElement.target = "_blank";
+        hiddenElement.download = `${fileName}.txt`;
+        hiddenElement.click();
+      });
+    } else {
+      // when no file to download
+      alert("No files to download");
+    }
+  };
 
   const createElement = (
     id,
@@ -392,7 +430,11 @@ const ImageShow = () => {
             right: 0,
           }}
         >
-          <Button variant="contained" style={{ maxWidth: "50px" }}>
+          <Button
+            variant="contained"
+            style={{ maxWidth: "50px" }}
+            onClick={() => download()}
+          >
             <SaveIcon />
           </Button>
         </div>
