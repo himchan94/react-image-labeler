@@ -23,6 +23,7 @@ const ContentBox = ({ type, label, color, id }) => {
   const dispatch = useDispatch();
   const loaded_idx = useSelector((state) => state.current.index);
   const current_label = useSelector((state) => state.current.current_label);
+  const currentImageId = useSelector((state) => state.current.current_id);
 
   const classes = useStyles();
 
@@ -32,7 +33,7 @@ const ContentBox = ({ type, label, color, id }) => {
         className={classes.cardcontent}
         style={
           id === current_label.id
-            ? { backgroundColor: "red" }
+            ? { backgroundColor: "#00afff70" }
             : { backgroundColor: "white" }
         }
         onClick={() => {
@@ -71,7 +72,14 @@ const ContentBox = ({ type, label, color, id }) => {
     );
   } else {
     return (
-      <Card className={classes.cardcontent}>
+      <Card
+        className={classes.cardcontent}
+        style={
+          id === currentImageId
+            ? { backgroundColor: "#00afff70" }
+            : { backgroundColor: "white" }
+        }
+      >
         <div
           style={{
             maxWidth: "70%",
@@ -87,7 +95,6 @@ const ContentBox = ({ type, label, color, id }) => {
         </div>
         <div>
           <Button
-            style={{ color: "red" }}
             onClick={() => {
               dispatch(removeImage(id));
 

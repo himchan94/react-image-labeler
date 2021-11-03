@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
 
+//Mui component
+import Button from "@mui/material/Button";
+import SaveIcon from "@mui/icons-material/Save";
+
 // Redux
 import { useSelector, useDispatch } from "react-redux";
 import { updateImageid } from "../redux/modules/current.js";
+
+// ID generator
+import uuidv4 from "../script/id_generator.js";
 
 // canvas global variable
 let canvas, ctx;
@@ -90,7 +97,7 @@ const ImageShow = () => {
     } else {
       // when there are no images, clear rect
 
-      if (canvas && layer) {
+      if (canvas) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       }
     }
@@ -142,6 +149,7 @@ const ImageShow = () => {
 
   const getElementAtPosition = (x, y, elements) => {
     return elements
+      .filter((element) => element.imageId === currentImageId)
       .map((element) => ({
         ...element,
         position: positionWithinElement(x, y, element),
@@ -237,10 +245,20 @@ const ImageShow = () => {
           elements
         );
         if (removing_element) {
-          const filtered_elements = elements.filter(
-            (element) => element.id !== removing_element.id
+          // array of same imageId with currentImageId && editied array
+          const filtered_currentImage = elements.filter(
+            (elements) =>
+              elements.imageId === currentImageId &&
+              elements.id !== removing_element.id
           );
-          setElements([...filtered_elements]);
+
+          // array of different imageId with currentImageId && not editied array
+          const not_filtered_currentImage = elements.filter(
+            (elements) => elements.imageId !== currentImageId
+          );
+
+          // combine both array to state
+          setElements([...not_filtered_currentImage, ...filtered_currentImage]);
         }
       } else {
         const id = elements.length;
@@ -340,7 +358,6 @@ const ImageShow = () => {
           }}
         >
           <div>
-            {" "}
             <input
               type="radio"
               id="selection"
@@ -350,7 +367,6 @@ const ImageShow = () => {
             <label htmlFor="selection">Selection</label>
           </div>
           <div>
-            {" "}
             <input
               type="radio"
               id="rectangle"
@@ -360,7 +376,6 @@ const ImageShow = () => {
             <label htmlFor="rectangle">Rectangle</label>
           </div>
           <div>
-            {" "}
             <input
               type="radio"
               id="rectangle"
@@ -369,6 +384,17 @@ const ImageShow = () => {
             />
             <label htmlFor="rectangle">Remove</label>
           </div>
+        </div>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            right: 0,
+          }}
+        >
+          <Button variant="contained" style={{ maxWidth: "50px" }}>
+            <SaveIcon />
+          </Button>
         </div>
         <canvas
           id="layer"
