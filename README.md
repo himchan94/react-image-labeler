@@ -1,12 +1,13 @@
-<p align="center" width="100%">
-    <img width="60%" height="60%" src="https://user-images.githubusercontent.com/71649055/162127924-a861d855-e1bf-40a2-a4bc-570aabf8279b.gif">
-</p>
-
 # react-image labeler
 react-image labeler
 
 preview
 https://imagelaber.netlify.app/
+
+<p align="center" width="100%">
+    <img width="60%" height="60%" src="https://user-images.githubusercontent.com/71649055/162127924-a861d855-e1bf-40a2-a4bc-570aabf8279b.gif">
+</p>
+
 
 ## About this project
 
