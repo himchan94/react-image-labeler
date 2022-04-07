@@ -14,7 +14,6 @@ https://imagelaber.netlify.app/
 업로드한 이미지를 라벨링할 수 있는 웹사이트.
 
 ### Tools
-Design : Figma
 Development: React, redux, material-ui
 
 ### Description
